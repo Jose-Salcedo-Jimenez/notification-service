@@ -20,9 +20,12 @@ class NotificationServiceApplicationTests {
     // Act
     try (ConfigurableApplicationContext context =
         application.run(
+            "--spring.config.import=",
+            "--spring.rabbitmq.addresses=localhost:5672",
             "--brevo.local.api-key=xkeysib-test-api-key",
             "--brevo.local.from.address=no-reply@example.com",
-            "--brevo.local.from.name=Test Notification Service")) {
+            "--brevo.local.from.name=Test Notification Service",
+            "--spring.rabbitmq.listener.simple.auto-startup=false")) {
 
       // Assert
       final BrevoProperties properties = context.getBean(BrevoProperties.class);
