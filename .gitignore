@@ -39,7 +39,6 @@ build/
 /.nb-gradle/
 cmake-build-*/
 out/
-
 ### IDEs (IntelliJ, Eclipse, STS, VS Code) ###
 # IntelliJ IDEA & JetBrains
 .idea/
@@ -64,3 +63,7 @@ fabric.properties
 
 # NetBeans / VS Code
 .vscode/
+
+# excluir
+!**/src/main/**/port/out/
+!**/src/main/java/**/port/out/
