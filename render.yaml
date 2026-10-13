@@ -4,3 +4,48 @@ services:
     runtime: docker
     plan: free
     healthCheckPath: /health
+    envVars:
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_FROM_ADDRESS
+        sync: false
+      - key: BREVO_FROM_NAME
+        value: "Notification Service"
+      - key: BREVO_BASE_URL
+        value: "https://api.brevo.com"
+      - key: BREVO_CONNECT_TIMEOUT
+        value: "2s"
+      - key: BREVO_READ_TIMEOUT
+        value: "5s"
+      - key: BREVO_RETRY_MAX_ATTEMPTS
+        value: "3"
+      - key: BREVO_RETRY_INITIAL_DELAY
+        value: "500ms"
+      - key: BREVO_RETRY_MULTIPLIER
+        value: "2.0"
+      - key: BREVO_CIRCUIT_FAILURE_THRESHOLD
+        value: "50"
+      - key: BREVO_CIRCUIT_WINDOW_SIZE
+        value: "10"
+      - key: BREVO_CIRCUIT_MINIMUM_CALLS
+        value: "5"
+      - key: BREVO_CIRCUIT_OPEN_DURATION
+        value: "30s"
+      - key: RABBITMQ_URL
+        sync: false
+      - key: RABBITMQ_NOTIFICATION_QUEUE
+        value: "notification.events.queue"
+      - key: RABBITMQ_DOMAIN_EXCHANGE
+        value: "domain.events"
+      - key: RABBITMQ_NOTIFICATION_ROUTING_KEY
+        value: "user.#"
+      - key: RABBITMQ_CONCURRENCY
+        value: "1"
+      - key: RABBITMQ_MAX_CONCURRENCY
+        value: "3"
+      - key: RABBITMQ_ACK_MODE
+        value: "auto"
+      - key: RABBITMQ_REQUEUE_REJECTED
+        value: "false"
+      - key: RABBITMQ_LOG_LEVEL
+        value: "INFO"
