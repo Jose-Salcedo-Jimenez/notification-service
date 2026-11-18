@@ -5,6 +5,7 @@ import com.jcaa.notificationservice.domain.core.exception.DomainException;
 import com.jcaa.notificationservice.entrypoint.event.error.NotificationEventRecoverer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.DefaultErrorHandler;
@@ -20,6 +21,17 @@ public class KafkaNotificationConfiguration {
   ConsumerFactory<String, String> notificationConsumerFactory(
       final KafkaConsumerProperties properties) {
     return new DefaultKafkaConsumerFactory<>(properties.toConsumerConfig());
+  }
+
+  @Bean
+  ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
+      final ConsumerFactory<String, String> notificationConsumerFactory,
+      final DefaultErrorHandler notificationKafkaErrorHandler) {
+    final ConcurrentKafkaListenerContainerFactory<String, String> factory =
+        new ConcurrentKafkaListenerContainerFactory<>();
+    factory.setConsumerFactory(notificationConsumerFactory);
+    factory.setCommonErrorHandler(notificationKafkaErrorHandler);
+    return factory;
   }
 
   @Bean
