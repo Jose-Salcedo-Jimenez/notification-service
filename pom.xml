@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
+            <artifactId>spring-boot-starter-kafka</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.resilience4j</groupId>
@@ -86,6 +86,7 @@
                             <excludes>
                                 <exclude>com/jcaa/notificationservice/NotificationServiceApplication.class</exclude>
                                 <exclude>com/jcaa/notificationservice/adapter/email/config/BrevoClientConfiguration.class</exclude>
+                                <exclude>com/jcaa/notificationservice/entrypoint/event/config/KafkaNotificationConfiguration.class</exclude>
                             </excludes>
                             <rules>
                                 <rule>

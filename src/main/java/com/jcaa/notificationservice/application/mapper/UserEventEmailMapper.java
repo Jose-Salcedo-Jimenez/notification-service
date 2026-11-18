@@ -14,24 +14,29 @@ public final class UserEventEmailMapper {
 
   private static final String EMAIL_FIELD = "email";
   private static final String NAME_FIELD = "name";
+  private static final String ACCOUNT_NUMBER_FIELD = "accountNumber";
   private static final String MISSING_PAYLOAD_MESSAGE = "The notification payload is required.";
   private static final String MISSING_FIELD_MESSAGE =
       "The notification payload is missing a required field.";
   private static final String CREATED_SUBJECT = "Welcome to our platform";
   private static final String UPDATED_SUBJECT = "Your account was updated";
+  private static final String ACCOUNT_CREATED_SUBJECT = "Tu cuenta ha sido creada";
   private static final String CREATED_BODY_TEMPLATE =
       "<p>Hello %s, your account was created successfully.</p>";
   private static final String UPDATED_BODY_TEMPLATE =
       "<p>Hello %s, your account information was updated successfully.</p>";
+  private static final String ACCOUNT_CREATED_BODY_TEMPLATE =
+      "<p>Hola %s, tu cuenta bancaria ha sido creada exitosamente.</p>"
+          + "<p>Número de cuenta: <strong>%s</strong></p>"
+          + "<p>Puedes comenzar a usar tu cuenta de inmediato.</p>";
 
   public EmailDestination toEmailDestination(
       final ProcessDomainEventCommand command, final UserEventType eventType) {
     final Map<String, String> payload = requiredPayload(command.payload());
     final String name = requiredField(payload, NAME_FIELD);
     final UserEmail email = new UserEmail(requiredField(payload, EMAIL_FIELD));
-    final EmailContent content = contentFor(eventType);
-    return new EmailDestination(
-        email, name, content.subject(), content.bodyTemplate().formatted(name));
+    final EmailContent content = contentFor(eventType, name, payload);
+    return new EmailDestination(email, name, content.subject(), content.body());
   }
 
   private static Map<String, String> requiredPayload(final Map<String, String> payload) {
@@ -49,13 +54,21 @@ public final class UserEventEmailMapper {
     return value.strip();
   }
 
-  private static EmailContent contentFor(final UserEventType eventType) {
+  private static EmailContent contentFor(
+      final UserEventType eventType,
+      final String name,
+      final Map<String, String> payload) {
     return switch (eventType) {
-      case CREATED -> new EmailContent(CREATED_SUBJECT, CREATED_BODY_TEMPLATE);
-      case UPDATED -> new EmailContent(UPDATED_SUBJECT, UPDATED_BODY_TEMPLATE);
+      case CREATED -> new EmailContent(CREATED_SUBJECT, CREATED_BODY_TEMPLATE.formatted(name));
+      case UPDATED -> new EmailContent(UPDATED_SUBJECT, UPDATED_BODY_TEMPLATE.formatted(name));
+      case ACCOUNT_CREATED -> {
+        final String accountNumber = requiredField(payload, ACCOUNT_NUMBER_FIELD);
+        yield new EmailContent(
+            ACCOUNT_CREATED_SUBJECT, ACCOUNT_CREATED_BODY_TEMPLATE.formatted(name, accountNumber));
+      }
       case DELETED -> throw new InvalidNotificationEventException(MISSING_FIELD_MESSAGE);
     };
   }
 
-  private record EmailContent(String subject, String bodyTemplate) {}
+  private record EmailContent(String subject, String body) {}
 }

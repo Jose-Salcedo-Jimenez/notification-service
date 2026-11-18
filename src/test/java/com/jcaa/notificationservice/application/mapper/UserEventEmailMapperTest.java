@@ -8,7 +8,6 @@ import com.jcaa.notificationservice.application.dto.command.ProcessDomainEventCo
 import com.jcaa.notificationservice.application.exception.InvalidNotificationEventException;
 import com.jcaa.notificationservice.application.model.UserEventType;
 import com.jcaa.notificationservice.domain.core.model.EmailDestination;
-import java.time.LocalDateTime;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,7 +15,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 class UserEventEmailMapperTest {
 
-  private static final LocalDateTime OCCURRED_ON = LocalDateTime.of(2026, 10, 12, 14, 30);
+  private static final String OCCURRED_ON = "2026-10-12T14:30:00";
   private final UserEventEmailMapper mapper = new UserEventEmailMapper();
 
   @Test
@@ -83,6 +82,49 @@ class UserEventEmailMapperTest {
         assertThrows(
             InvalidNotificationEventException.class,
             () -> mapper.toEmailDestination(command, UserEventType.CREATED));
+
+    // Assert
+    assertThat(exception.getMessage())
+        .isEqualTo("The notification payload is missing a required field.");
+  }
+
+  @Test
+  void shouldMapAccountCreatedEvent() {
+    // Arrange
+    final ProcessDomainEventCommand command =
+        new ProcessDomainEventCommand(
+            "account.created",
+            OCCURRED_ON,
+            Map.of(
+                "name", "Ana Perez",
+                "email", "ana.perez@example.com",
+                "accountNumber", "1234567890"));
+
+    // Act
+    final EmailDestination destination =
+        mapper.toEmailDestination(command, UserEventType.ACCOUNT_CREATED);
+
+    // Assert
+    assertAll(
+        () -> assertThat(destination.subject()).isEqualTo("Tu cuenta ha sido creada"),
+        () -> assertThat(destination.body()).contains("1234567890"),
+        () -> assertThat(destination.body()).contains("Ana Perez"));
+  }
+
+  @Test
+  void shouldRejectMissingAccountNumber() {
+    // Arrange
+    final ProcessDomainEventCommand command =
+        new ProcessDomainEventCommand(
+            "account.created",
+            OCCURRED_ON,
+            Map.of("name", "Ana Perez", "email", "ana.perez@example.com"));
+
+    // Act
+    final InvalidNotificationEventException exception =
+        assertThrows(
+            InvalidNotificationEventException.class,
+            () -> mapper.toEmailDestination(command, UserEventType.ACCOUNT_CREATED));
 
     // Assert
     assertThat(exception.getMessage())

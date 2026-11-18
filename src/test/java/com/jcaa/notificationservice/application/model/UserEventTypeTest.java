@@ -15,7 +15,8 @@ class UserEventTypeTest {
   @CsvSource({
     "user.created, CREATED",
     "user.updated, UPDATED",
-    "user.deleted, DELETED"
+    "user.deleted, DELETED",
+    "account.created, ACCOUNT_CREATED"
   })
   void shouldResolveSupportedEvent(final String eventName, final UserEventType expectedType) {
     // Arrange

@@ -8,7 +8,6 @@ import com.jcaa.notificationservice.application.dto.command.ProcessDomainEventCo
 import com.jcaa.notificationservice.application.mapper.UserEventEmailMapper;
 import com.jcaa.notificationservice.domain.core.model.EmailDestination;
 import com.jcaa.notificationservice.domain.port.out.EmailSenderPort;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,29 @@ class NotificationEventApplicationServiceTest {
   }
 
   @Test
+  void shouldSendEmailForAccountCreatedEvent() {
+    // Arrange
+    final RecordingEmailSender emailSenderPort = new RecordingEmailSender();
+    final NotificationEventApplicationService service =
+        new NotificationEventApplicationService(emailSenderPort, new UserEventEmailMapper());
+    final ProcessDomainEventCommand command =
+        new ProcessDomainEventCommand(
+            "account.created",
+            "2026-10-12T14:30:00",
+            Map.of(
+                "name", "Ana Perez",
+                "email", "ana.perez@example.com",
+                "accountNumber", "9876543210"));
+    // Act
+    service.process(command);
+
+    // Assert
+    final EmailDestination destination = emailSenderPort.sentEmails().getFirst();
+    assertThat(destination.subject()).isEqualTo("Tu cuenta ha sido creada");
+    assertThat(destination.body()).contains("9876543210");
+  }
+
+  @Test
   void shouldAcknowledgeDeletedEventWithoutSendingEmail() {
     // Arrange
     final RecordingEmailSender emailSenderPort = new RecordingEmailSender();
@@ -40,7 +62,7 @@ class NotificationEventApplicationServiceTest {
         new NotificationEventApplicationService(emailSenderPort, new UserEventEmailMapper());
     final ProcessDomainEventCommand command =
         new ProcessDomainEventCommand(
-            "user.deleted", LocalDateTime.of(2026, 10, 12, 15, 30), Map.of("id", "user-id"));
+            "user.deleted", "2026-10-12T15:30:00", Map.of("id", "user-id"));
 
     // Act
     assertDoesNotThrow(() -> service.process(command));
@@ -88,7 +110,7 @@ class NotificationEventApplicationServiceTest {
   private static ProcessDomainEventCommand validCommand(final String eventName) {
     return new ProcessDomainEventCommand(
         eventName,
-        LocalDateTime.of(2026, 10, 12, 14, 30),
+        "2026-10-12T14:30:00",
         Map.of("name", "Ana Perez", "email", "ana.perez@example.com"));
   }
 

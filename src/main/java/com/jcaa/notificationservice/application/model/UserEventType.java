@@ -7,7 +7,8 @@ import java.util.Objects;
 public enum UserEventType {
   CREATED("user.created"),
   UPDATED("user.updated"),
-  DELETED("user.deleted");
+  DELETED("user.deleted"),
+  ACCOUNT_CREATED("account.created");
 
   private static final String UNKNOWN_EVENT_MESSAGE = "Unsupported notification event.";
 

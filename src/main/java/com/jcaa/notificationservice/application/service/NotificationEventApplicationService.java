@@ -25,7 +25,7 @@ public final class NotificationEventApplicationService
   public void process(final ProcessDomainEventCommand command) {
     Objects.requireNonNull(command);
     final UserEventType eventType = UserEventType.from(command.eventName());
-    if (eventType == UserEventType.DELETED) {
+    if (Objects.equals(eventType, UserEventType.DELETED)) {
       return;
     }
     emailSenderPort.send(emailMapper.toEmailDestination(command, eventType));
